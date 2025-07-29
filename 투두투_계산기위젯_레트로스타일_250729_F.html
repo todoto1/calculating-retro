@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> 투두투 레트로 계산기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css">
+<style>
+  body {
+    font-family: 'Pretendard', sans-serif;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  #calculator-app {
+    background: linear-gradient(145deg, #c0c0c0, #a8a8a8);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,0.15),
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      inset 0 -1px 0 rgba(0,0,0,0.1);
+    border: 1px solid #999;
+    max-width: 280px;
+    width: 100%;
+  }
+  
+  .display {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    border: 2px inset #666;
+    border-radius: 4px;
+    text-align: right;
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    color: #00ff41;
+    box-sizing: border-box;
+    text-shadow: 0 0 8px rgba(0,255,65,0.3);
+  }
+  
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  
+  .key {
+    height: 45px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.1s ease;
+    font-family: 'Pretendard', sans-serif;
+    
+    /* 숫자 키 - 연한 그레이 */
+    background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
+    color: #333;
+    border: 1px solid #d0d0d0;
+    box-shadow: 
+      0 3px 0 #c0c0c0,
+      0 4px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+  
+  .key:hover {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 4px 0 #c0c0c0,
+      0 6px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  
+  .key:active {
+    transform: translateY(2px);
+    box-shadow: 
+      0 1px 0 #c0c0c0,
+      0 2px 4px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+  
+  /* 연산자 키 - 진한 그레이 */
+  .operator {
+    background: linear-gradient(145deg, #a0a0a0, #888888);
+    color: #fff;
+    border: 1px solid #777;
+    box-shadow: 
+      0 3px 0 #666,
+      0 4px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  
+  .operator:hover {
+    background: linear-gradient(145deg, #b0b0b0, #999999);
+    box-shadow: 
+      0 4px 0 #666,
+      0 6px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+  .operator:active {
+    box-shadow: 
+      0 1px 0 #666,
+      0 2px 4px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  
+  /* 등호 키 - #000cfe */
+  .equal {
+    background: linear-gradient(145deg, #000cfe, #0009e6);
+    color: white;
+    border: 1px solid #0008cc;
+    box-shadow: 
+      0 3px 0 #0007aa,
+      0 4px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    grid-column: span 2;
+  }
+  
+  .equal:hover {
+    background: linear-gradient(145deg, #1a1cff, #000cfe);
+    box-shadow: 
+      0 4px 0 #0007aa,
+      0 6px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  
+  .equal:active {
+    box-shadow: 
+      0 1px 0 #0007aa,
+      0 2px 4px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+  /* 클리어 키 - #000cfe */
+  .clear {
+    background: linear-gradient(145deg, #000cfe, #0009e6);
+    color: white;
+    border: 1px solid #0008cc;
+    box-shadow: 
+      0 3px 0 #0007aa,
+      0 4px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  
+  .clear:hover {
+    background: linear-gradient(145deg, #1a1cff, #000cfe);
+    box-shadow: 
+      0 4px 0 #0007aa,
+      0 6px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  
+  .clear:active {
+    box-shadow: 
+      0 1px 0 #0007aa,
+      0 2px 4px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  /* 키 라벨 스타일 */
+  .key-label {
+    font-size: 10px;
+    opacity: 0.6;
+    position: absolute;
+    top: 2px;
+    left: 4px;
+  }
+  
+  .key-main {
+    font-size: 16px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+<div id="calculator-app">
+  <input type="text" class="display" id="display" placeholder="0" readonly>
+  <div class="buttons">
+    <!-- 첫 번째 줄 -->
+    <button class="key clear" onclick="allClear()">
+      <div class="key-label">ESC</div>
+      <div class="key-main">AC</div>
+    </button>
+    <button class="key clear" onclick="clearDisplay()">
+      <div class="key-label">←</div>
+      <div class="key-main">C</div>
+    </button>
+    <button class="key operator" onclick="appendValue('%')">
+      <div class="key-label">%</div>
+      <div class="key-main">%</div>
+    </button>
+    <button class="key operator" onclick="appendValue('/')">
+      <div class="key-label">/</div>
+      <div class="key-main">÷</div>
+    </button>
+
+    <!-- 두 번째 줄 -->
+    <button class="key" onclick="appendValue('7')">
+      <div class="key-label">7</div>
+      <div class="key-main">7</div>
+    </button>
+    <button class="key" onclick="appendValue('8')">
+      <div class="key-label">8</div>
+      <div class="key-main">8</div>
+    </button>
+    <button class="key" onclick="appendValue('9')">
+      <div class="key-label">9</div>
+      <div class="key-main">9</div>
+    </button>
+    <button class="key operator" onclick="appendValue('*')">
+      <div class="key-label">*</div>
+      <div class="key-main">×</div>
+    </button>
+
+    <!-- 세 번째 줄 -->
+    <button class="key" onclick="appendValue('4')">
+      <div class="key-label">4</div>
+      <div class="key-main">4</div>
+    </button>
+    <button class="key" onclick="appendValue('5')">
+      <div class="key-label">5</div>
+      <div class="key-main">5</div>
+    </button>
+    <button class="key" onclick="appendValue('6')">
+      <div class="key-label">6</div>
+      <div class="key-main">6</div>
+    </button>
+    <button class="key operator" onclick="appendValue('-')">
+      <div class="key-label">-</div>
+      <div class="key-main">−</div>
+    </button>
+
+    <!-- 네 번째 줄 -->
+    <button class="key" onclick="appendValue('1')">
+      <div class="key-label">1</div>
+      <div class="key-main">1</div>
+    </button>
+    <button class="key" onclick="appendValue('2')">
+      <div class="key-label">2</div>
+      <div class="key-main">2</div>
+    </button>
+    <button class="key" onclick="appendValue('3')">
+      <div class="key-label">3</div>
+      <div class="key-main">3</div>
+    </button>
+    <button class="key operator" onclick="appendValue('+')">
+      <div class="key-label">+</div>
+      <div class="key-main">＋</div>
+    </button>
+
+    <!-- 다섞 번째 줄 -->
+    <button class="key" onclick="appendValue('0')">
+      <div class="key-label">0</div>
+      <div class="key-main">0</div>
+    </button>
+    <button class="key" onclick="appendValue('.')">
+      <div class="key-label">.</div>
+      <div class="key-main">.</div>
+    </button>
+    <button class="key equal" onclick="calculate()">
+      <div class="key-label">ENTER</div>
+      <div class="key-main">＝</div>
+    </button>
+  </div>
+</div>
+
+<script>
+const display = document.getElementById("display");
+
+// 실시간 쉼표 포맷
+function formatInput(expression) {
+  return expression.replace(/\d+(\.\d+)?/g, (num) => {
+    if (num.includes(".")) {
+      const parts = num.split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  });
+}
+
+function appendValue(value) {
+  let raw = display.dataset.raw || "";
+  raw += value;
+  display.dataset.raw = raw;
+  display.value = formatInput(raw);
+}
+
+function clearDisplay() {
+  let raw = display.dataset.raw || "";
+  raw = raw.slice(0, -1);
+  display.dataset.raw = raw;
+  display.value = formatInput(raw);
+}
+
+function allClear() {
+  display.dataset.raw = "";
+  display.value = "";
+}
+
+function formatNumber(num) {
+  if (isNaN(num)) return "Error";
+  const parts = num.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
+
+function calculate() {
+  try {
+    const raw = (display.dataset.raw || "").replace(/%/g, "/100");
+    const result = eval(raw);
+    display.dataset.raw = result.toString();
+    display.value = formatNumber(result);
+  } catch {
+    display.value = "Error";
+  }
+}
+
+// 키보드 입력 지원
+document.addEventListener("keydown", (e) => {
+  // 키 애니메이션 효과
+  let keyElement = null;
+  
+  if ((/[0-9]/).test(e.key)) {
+    keyElement = [...document.querySelectorAll('.key')].find(btn => 
+      btn.textContent.includes(e.key) && !btn.classList.contains('operator')
+    );
+    appendValue(e.key);
+  } else if (e.key === '+') {
+    keyElement = document.querySelector('.key[onclick*="+"]');
+    appendValue('+');
+  } else if (e.key === '-') {
+    keyElement = document.querySelector('.key[onclick*="-"]');
+    appendValue('-');
+  } else if (e.key === '*') {
+    keyElement = document.querySelector('.key[onclick*="*"]');
+    appendValue('*');
+  } else if (e.key === '/') {
+    keyElement = document.querySelector('.key[onclick*="/"]');
+    appendValue('/');
+    e.preventDefault();
+  } else if (e.key === '%') {
+    keyElement = document.querySelector('.key[onclick*="%"]');
+    appendValue('%');
+  } else if (e.key === '.') {
+    keyElement = document.querySelector('.key[onclick*="."]');
+    appendValue('.');
+  } else if (e.key === 'Enter') {
+    keyElement = document.querySelector('.equal');
+    calculate();
+    e.preventDefault();
+  } else if (e.key === 'Backspace') {
+    keyElement = document.querySelector('.clear[onclick*="clearDisplay"]');
+    clearDisplay();
+    e.preventDefault();
+  } else if (e.key === 'Escape') {
+    keyElement = document.querySelector('.clear[onclick*="allClear"]');
+    allClear();
+    e.preventDefault();
+  }
+  
+  // 키 눌림 효과
+  if (keyElement) {
+    keyElement.style.transform = 'translateY(2px)';
+    keyElement.style.boxShadow = '0 1px 0 #bbb, 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8)';
+    
+    setTimeout(() => {
+      keyElement.style.transform = '';
+      keyElement.style.boxShadow = '';
+    }, 100);
+  }
+});
+</script>
+</body>
+</html>
